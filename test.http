@@ -209,3 +209,75 @@ GET http://localhost:8080/figures/search?keyword=미쿠
 
 ###
 GET http://localhost:8080/figures/999
+
+###
+GET http://localhost:8080/characters/1/figures
+
+###
+POST http://localhost:8080/characters
+Content-Type: application/json
+
+###
+POST http://localhost:8080/characters
+Content-Type: application/json
+
+{
+"name": "하츠네 미쿠",
+"series": "VOCALOID"
+}
+
+###
+GET http://localhost:8080/manufacturers
+
+###
+POST http://localhost:8080/manufacturers
+Content-Type: application/json
+
+{
+  "name": "Good Smile Company"
+}
+
+###
+POST http://localhost:8080/manufacturers
+Content-Type: application/json
+
+{
+  "name": "Good Smile Company"
+}
+
+###
+POST http://localhost:8080/figures
+Content-Type: application/json
+
+{
+"name": "하츠네 미쿠 넨도로이드",
+"manufacturerId": 2,
+"characterIds": [2]
+}
+
+###
+POST http://localhost:8080/characters
+Content-Type: application/json
+
+{
+"name": "하츠네 미쿠",
+"series": "VOCALOID"
+}
+
+###
+POST http://localhost:8080/manufacturers
+Content-Type: application/json
+
+{
+  "name": "Good Smile Company"
+}
+
+###
+POST http://localhost:8080/figures
+Content-Type: application/json
+
+{
+  "name": "하츠네 미쿠 피규어",
+  "manufacturerId": 1,
+  "characterIds": [1]
+}

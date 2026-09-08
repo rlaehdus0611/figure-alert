@@ -1,12 +1,12 @@
 package com.figure.figure.controller;
 
 import com.figure.figure.dto.FigureCreateRequest;
+import com.figure.figure.dto.FigureResponse;
 import com.figure.figure.model.Figure;
 import com.figure.figure.service.FigureService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -19,39 +19,38 @@ public class FigureController {
         this.figureService = figureService;
     }
 
-    @GetMapping("/figures") // 모든 피규어 조회
-    public List<Figure> figures() {
+    // 모든 피규어 조회
+    @GetMapping("/figures")
+    public List<FigureResponse> getFigures() {
         return figureService.findAllFigures();
     }
 
-    @GetMapping("/figures/{id}") // id로 피규어 조회
-    public Figure getFigure(@PathVariable Long id) {
+    // id로 피규어 조회
+    @GetMapping("/figures/{id}")
+    public FigureResponse getFigure(@PathVariable Long id) {
         return figureService.findFigure(id);
     }
 
-    @GetMapping("/figures/name/{name}") // 이름으로 피규어 조회
-    public Figure getFigureByName(@PathVariable String name) {
-        return figureService.findFigureByName(name);
-    }
-
-    @PostMapping("/figures") // 피규어 등록
+    // 피규어 등록
+    @PostMapping("/figures")
     @ResponseStatus(HttpStatus.CREATED)
-    public Figure createFigure(@Valid @RequestBody FigureCreateRequest request) {
+    public FigureResponse createFigure(@Valid @RequestBody FigureCreateRequest request) {
         return figureService.createFigure(request);
     }
 
-    @GetMapping("/figures/search") // 키워드로 피규어 검색
-    public List<Figure> searchFigures(
+    // 키워드로 피규어 검색
+    @GetMapping("/figures/search")
+    public List<FigureResponse> searchFigures(
             @RequestParam String keyword
     ) {
         return figureService.searchFiguresByName(keyword);
     }
 
-    @DeleteMapping("/figures/{id}") // 피규어 정보 삭제
+    // 피규어 정보 삭제
+    @DeleteMapping("/figures/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFigure(@PathVariable Long id) {
         figureService.deleteFigure(id);
     }
-
-
 
 }

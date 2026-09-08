@@ -1,34 +1,23 @@
 package com.figure.figure.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class FigureCreateRequest { // 사용자가 서버에 보내는 데이터
+import java.util.List;
 
-    private Long id;
+@Getter
+@NoArgsConstructor
+public class FigureCreateRequest {
 
     @NotBlank
     private String name;
 
+    @NotNull
     private Long manufacturerId;
 
-    private Long characterId;
-
-    public FigureCreateRequest() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Long getManufacturerId() {
-        return manufacturerId;
-    }
-
-    public Long getCharacterId() {
-        return characterId;
-    }
+    @NotEmpty
+    private List<Long> characterIds;
 }

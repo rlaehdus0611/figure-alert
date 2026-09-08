@@ -1,97 +1,146 @@
 package com.figure.figure.service;
 
 import com.figure.figure.dto.FigureCreateRequest;
-import com.figure.figure.exception.FigureAlreadyExistsException;
+import com.figure.figure.dto.FigureResponse;
+import com.figure.figure.exception.CharacterNotFoundException;
 import com.figure.figure.exception.FigureNotFoundException;
+import com.figure.figure.exception.ManufacturerNotFoundException;
+import com.figure.figure.model.Character;
 import com.figure.figure.model.Figure;
+import com.figure.figure.model.FigureCharacter;
 import com.figure.figure.model.Manufacturer;
+import com.figure.figure.repository.CharacterRepository;
+import com.figure.figure.repository.FigureCharacterRepository;
 import com.figure.figure.repository.FigureRepository;
 import com.figure.figure.repository.ManufacturerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.figure.figure.model.Character;
-import com.figure.figure.repository.CharacterRepository;
-import com.figure.figure.exception.ManufacturerNotFoundException;
-import com.figure.figure.exception.CharacterNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FigureService {
 
     private final FigureRepository figureRepository;
     private final ManufacturerRepository manufacturerRepository;
     private final CharacterRepository characterRepository;
+    private final FigureCharacterRepository figureCharacterRepository;
 
-    public FigureService(
-            FigureRepository figureRepository,
-            ManufacturerRepository manufacturerRepository,
-            CharacterRepository characterRepository
-    ) {
-        this.figureRepository = figureRepository;
-        this.manufacturerRepository = manufacturerRepository;
-        this.characterRepository = characterRepository;
+    // id로 피규어 조회
+    public FigureResponse findFigure(Long id) {
+        Figure figure = figureRepository.findById(id)
+                .orElseThrow(FigureNotFoundException::new);
+
+        return toResponse(figure);
     }
 
-    public Figure findFigure(Long id) { // id로 찾기
-        Optional<Figure> figure = figureRepository.findById(id);
+    // 모든 피규어 조회
+    public List<FigureResponse> findAllFigures() {
+        return figureRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
-        if (figure.isEmpty()) {
-            throw new FigureNotFoundException();
+    // 특정 캐릭터의 피규어 목록 조회
+    public List<FigureResponse> findFiguresByCharacter(Long characterId) {
+
+        if (!characterRepository.existsById(characterId)) {
+            throw new CharacterNotFoundException();
         }
 
-        return figure.get();
+        return figureCharacterRepository.findByCharacterId(characterId)
+                .stream()
+                .map(FigureCharacter::getFigure)
+                .map(this::toResponse)
+                .toList();
     }
 
-    public List<Figure> findAllFigures() { // 모든 피규어 찾기
-        return figureRepository.findAll();
-    }
+    // 이름 또는 캐릭터 이름으로 검색
+    public List<FigureResponse> searchFiguresByName(String keyword) {
 
-    public Figure findFigureByName(String name) { // 이름으로 찾기
-        return figureRepository.findByName(name);
-    }
+        // 피규어 이름으로 검색
+        List<Figure> figures = figureRepository.findByNameContaining(keyword);
 
-    public List<Figure> searchFiguresByName(String keyword) { // Name, Character 키워드로 피규어 정보 찾기
-        return figureRepository.findByNameContainingOrCharacterNameContaining(keyword, keyword);
-    }
+        // 캐릭터 이름으로 검색
+        List<Character> characters = characterRepository.findByNameContaining(keyword);
 
-    public Figure createFigure(FigureCreateRequest request) { // 새로운 피규어 정보 생성
+        // 검색된 캐릭터와 연결된 피규어 추가
+        for (Character character : characters) {
+            List<Figure> characterFigures = figureCharacterRepository
+                    .findByCharacterId(character.getId())
+                    .stream()
+                    .map(FigureCharacter::getFigure)
+                    .toList();
 
-        if (figureRepository.existsById(request.getId())) {
-            throw new FigureAlreadyExistsException();
+            figures.addAll(characterFigures);
         }
 
-        Optional<Manufacturer> manufacturer =
-                manufacturerRepository.findById(request.getManufacturerId());
+        return figures.stream()
+                .distinct()
+                .map(this::toResponse)
+                .toList();
+    }
 
-        if (manufacturer.isEmpty()) {
-            throw new ManufacturerNotFoundException();
-        }
+    // 새로운 피규어 생성
+    @Transactional
+    public FigureResponse createFigure(FigureCreateRequest request) {
 
-        Optional<Character> character =
-                characterRepository.findById(request.getCharacterId());
+        Manufacturer manufacturer = manufacturerRepository
+                .findById(request.getManufacturerId())
+                .orElseThrow(ManufacturerNotFoundException::new);
 
-        if (character.isEmpty()) {
+        List<Character> characters = characterRepository
+                .findAllById(request.getCharacterIds());
+
+        if (characters.size() != request.getCharacterIds().size()) {
             throw new CharacterNotFoundException();
         }
 
         Figure figure = new Figure(
-                request.getId(),
                 request.getName(),
-                manufacturer.get(),
-                character.get()
+                manufacturer
         );
 
-        return figureRepository.save(figure);
+        Figure savedFigure = figureRepository.save(figure);
+
+        List<FigureCharacter> figureCharacters = characters.stream()
+                .map(character -> new FigureCharacter(savedFigure, character))
+                .toList();
+
+        figureCharacterRepository.saveAll(figureCharacters);
+
+        return toResponse(savedFigure);
     }
 
-
+    // 피규어 삭제
+    @Transactional
     public void deleteFigure(Long id) {
         if (!figureRepository.existsById(id)) {
             throw new FigureNotFoundException();
         }
 
+        figureCharacterRepository.deleteByFigureId(id);
         figureRepository.deleteById(id);
     }
 
+    // Figure Entity -> FigureResponse DTO 변환
+    private FigureResponse toResponse(Figure figure) {
+
+        List<String> characterNames = figureCharacterRepository
+                .findByFigureId(figure.getId())
+                .stream()
+                .map(figureCharacter -> figureCharacter.getCharacter().getName())
+                .toList();
+
+        return new FigureResponse(
+                figure.getId(),
+                figure.getName(),
+                figure.getManufacturer().getName(),
+                characterNames
+        );
+    }
 }

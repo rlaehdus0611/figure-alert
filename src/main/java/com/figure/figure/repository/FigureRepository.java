@@ -7,9 +7,5 @@ import java.util.List;
 
 public interface FigureRepository extends JpaRepository<Figure, Long> {
 
-    Figure findByName(String name);
-    List<Figure> findByNameContainingOrCharacterNameContaining(
-            String figureKeyword,
-            String characterKeyword
-    );
+    List<Figure> findByNameContaining(String keyword);
 }

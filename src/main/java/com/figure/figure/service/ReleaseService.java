@@ -8,39 +8,30 @@ import com.figure.figure.repository.FigureRepository;
 import com.figure.figure.repository.ReleaseRepository;
 import com.figure.figure.exception.ReleaseNotFoundException;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
 import java.util.Optional;
 
-@Service // 출시 정보 관련 비즈니스 로직 처리
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReleaseService {
 
     private final ReleaseRepository releaseRepository;
     private final FigureRepository figureRepository;
 
-    public ReleaseService(
-            ReleaseRepository releaseRepository,
-            FigureRepository figureRepository
-    ) {
-        this.releaseRepository = releaseRepository;
-        this.figureRepository = figureRepository;
-    }
-
     // 출시 정보 등록
     public Release createRelease(ReleaseCreateRequest request) {
 
-        Optional<Figure> figure =
-                figureRepository.findById(request.getFigureId());
-
-        if (figure.isEmpty()) {
-            throw new FigureNotFoundException();
-        }
+        Figure figure = figureRepository.findById(request.getFigureId())
+                .orElseThrow((FigureNotFoundException::new));
 
         Release release = new Release(
-                request.getId(),
-                figure.get(),
+                figure,
                 request.getReleaseDate(),
                 request.getPrice(),
                 request.getType(),
@@ -57,14 +48,7 @@ public class ReleaseService {
 
     // 출시 정보 하나 조회
     public Release findRelease(Long id) {
-
-        Optional<Release> release =
-                releaseRepository.findById(id);
-
-        if (release.isEmpty()) {
-            throw new ReleaseNotFoundException();
-        }
-
-        return release.get();
+        return releaseRepository.findById(id)
+                .orElseThrow(ReleaseNotFoundException::new);
     }
 }

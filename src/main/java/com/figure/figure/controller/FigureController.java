@@ -2,22 +2,22 @@ package com.figure.figure.controller;
 
 import com.figure.figure.dto.FigureCreateRequest;
 import com.figure.figure.dto.FigureResponse;
-import com.figure.figure.model.Figure;
+import com.figure.figure.dto.ReleaseResponse;
 import com.figure.figure.service.FigureService;
+import com.figure.figure.service.ReleaseService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class FigureController {
 
     private final FigureService figureService;
-
-    public FigureController(FigureService figureService) {
-        this.figureService = figureService;
-    }
+    private final ReleaseService releaseService;
 
     // 모든 피규어 조회
     @GetMapping("/figures")
@@ -51,6 +51,14 @@ public class FigureController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFigure(@PathVariable Long id) {
         figureService.deleteFigure(id);
+    }
+
+    // 특정 피규어의 출시 이력 조회
+    @GetMapping("/figures/{figureId}/releases")
+    public List<ReleaseResponse> getFigureReleases(
+            @PathVariable Long figureId
+    ) {
+        return releaseService.findReleasesByFigure(figureId);
     }
 
 }

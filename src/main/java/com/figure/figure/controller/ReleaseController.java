@@ -1,9 +1,11 @@
 package com.figure.figure.controller;
 
 import com.figure.figure.dto.ReleaseCreateRequest;
+import com.figure.figure.dto.ReleaseResponse;
 import com.figure.figure.model.Release;
 import com.figure.figure.service.ReleaseService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,31 +13,26 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/releases")
+@RequiredArgsConstructor
 public class ReleaseController {
 
     private final ReleaseService releaseService;
 
-    public ReleaseController(ReleaseService releaseService) {
-        this.releaseService = releaseService;
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Release createRelease(
-            @Valid
-            @RequestBody
-            ReleaseCreateRequest request
+    public ReleaseResponse createRelease(
+            @Valid @RequestBody ReleaseCreateRequest request
     ) {
         return releaseService.createRelease(request);
     }
 
     @GetMapping
-    public List<Release> getReleases() {
+    public List<ReleaseResponse> getReleases() {
         return releaseService.findAllReleases();
     }
 
     @GetMapping("/{id}")
-    public Release getRelease(
+    public ReleaseResponse getRelease(
             @PathVariable Long id
     ) {
         return releaseService.findRelease(id);

@@ -281,3 +281,19 @@ Content-Type: application/json
   "manufacturerId": 1,
   "characterIds": [1]
 }
+
+###
+POST http://localhost:8080/releases
+Content-Type: application/json
+
+{
+  "figureId": 1,
+  "releaseDate": "2026-10-15",
+  "price": 69000,
+  "type": "RERELEASE",
+  "status": "UPCOMING",
+  "note": "재발매 예정"
+}
+
+###
+GET http://localhost:8080/figures/1/releases

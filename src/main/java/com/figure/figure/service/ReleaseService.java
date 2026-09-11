@@ -37,8 +37,7 @@ public class ReleaseService {
                 request.getReleaseDate(),
                 request.getPrice(),
                 request.getType(),
-                request.getStatus(),
-                request.getNote()
+                request.getStatus()
         );
 
         Release savedRelease = releaseRepository.save(release);
@@ -85,8 +84,7 @@ public class ReleaseService {
                 release.getReleaseDate(),
                 release.getPrice(),
                 release.getType(),
-                release.getStatus(),
-                release.getNote()
+                release.getStatus()
         );
     }
 

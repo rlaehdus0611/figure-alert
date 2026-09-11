@@ -27,6 +27,4 @@ public class ReleaseCreateRequest {
 
     @NotNull
     private ReleaseStatus status;
-
-    private String note;
 }

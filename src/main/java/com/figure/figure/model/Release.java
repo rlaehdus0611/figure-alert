@@ -39,14 +39,12 @@ public class Release {
             LocalDate releaseDate,
             int price,
             ReleaseType type,
-            ReleaseStatus status,
-            String note
+            ReleaseStatus status
     ) {
         this.figure = figure;
         this.releaseDate = releaseDate;
         this.price = price;
         this.type = type;
         this.status = status;
-        this.note = note;
     }
 }

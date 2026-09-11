@@ -18,6 +18,5 @@ public class ReleaseResponse {
     private int price;
     private ReleaseType type;
     private ReleaseStatus status;
-    private String note;
 
 }

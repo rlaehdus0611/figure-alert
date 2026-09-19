@@ -2,9 +2,10 @@ package com.figure.figure.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.persistence.FetchType;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Figure {
 
     @Id
@@ -28,17 +29,5 @@ public class Figure {
     ) {
         this.name = name;
         this.manufacturer = manufacturer;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Manufacturer getManufacturer() {
-        return manufacturer;
     }
 }

@@ -16,6 +16,9 @@ import com.figure.figure.repository.ManufacturerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.List;
 
@@ -29,7 +32,6 @@ public class FigureService {
     private final CharacterRepository characterRepository;
     private final FigureCharacterRepository figureCharacterRepository;
 
-    // id로 피규어 조회
     public FigureResponse findFigure(Long id) {
         Figure figure = figureRepository.findById(id)
                 .orElseThrow(FigureNotFoundException::new);
@@ -37,7 +39,6 @@ public class FigureService {
         return toResponse(figure);
     }
 
-    // 모든 피규어 조회
     public List<FigureResponse> findAllFigures() {
         return figureRepository.findAll()
                 .stream()
@@ -45,7 +46,43 @@ public class FigureService {
                 .toList();
     }
 
-    // 특정 캐릭터의 피규어 목록 조회
+    public List<FigureResponse> findFigures(String keyword, Long manufacturerId) {
+        String searchKeyword = keyword == null ? "" : keyword.trim();
+
+        List<Figure> figures = figureRepository.findByFilters(
+                searchKeyword,
+                manufacturerId
+        );
+
+        if (figures.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> figureIds = figures.stream()
+                .map(Figure::getId)
+                .toList();
+
+        List<FigureCharacter> relations =
+                figureCharacterRepository.findAllByFigureIdsWithCharacter(figureIds);
+
+        Map<Long, List<String>> characterNamesByFigureId = new HashMap<>();
+
+        for (FigureCharacter relation : relations) {
+            Long figureId = relation.getFigure().getId();
+
+            characterNamesByFigureId
+                    .computeIfAbsent(figureId, id -> new ArrayList<>())
+                    .add(relation.getCharacter().getName());
+        }
+
+        return figures.stream()
+                .map(figure -> toResponse(
+                        figure,
+                        characterNamesByFigureId.getOrDefault(figure.getId(), List.of())
+                ))
+                .toList();
+    }
+
     public List<FigureResponse> findFiguresByCharacter(Long characterId) {
 
         if (!characterRepository.existsById(characterId)) {
@@ -59,33 +96,10 @@ public class FigureService {
                 .toList();
     }
 
-    // 이름 또는 캐릭터 이름으로 검색
     public List<FigureResponse> searchFiguresByName(String keyword) {
-
-        // 피규어 이름으로 검색
-        List<Figure> figures = figureRepository.findByNameContaining(keyword);
-
-        // 캐릭터 이름으로 검색
-        List<Character> characters = characterRepository.findByNameContaining(keyword);
-
-        // 검색된 캐릭터와 연결된 피규어 추가
-        for (Character character : characters) {
-            List<Figure> characterFigures = figureCharacterRepository
-                    .findByCharacterId(character.getId())
-                    .stream()
-                    .map(FigureCharacter::getFigure)
-                    .toList();
-
-            figures.addAll(characterFigures);
-        }
-
-        return figures.stream()
-                .distinct()
-                .map(this::toResponse)
-                .toList();
+        return findFigures(keyword, null);
     }
 
-    // 새로운 피규어 생성
     @Transactional
     public FigureResponse createFigure(FigureCreateRequest request) {
 
@@ -116,7 +130,6 @@ public class FigureService {
         return toResponse(savedFigure);
     }
 
-    // 피규어 삭제
     @Transactional
     public void deleteFigure(Long id) {
         if (!figureRepository.existsById(id)) {
@@ -127,15 +140,17 @@ public class FigureService {
         figureRepository.deleteById(id);
     }
 
-    // Figure Entity -> FigureResponse DTO 변환
     private FigureResponse toResponse(Figure figure) {
-
         List<String> characterNames = figureCharacterRepository
                 .findByFigureId(figure.getId())
                 .stream()
                 .map(figureCharacter -> figureCharacter.getCharacter().getName())
                 .toList();
 
+        return toResponse(figure, characterNames);
+    }
+
+    private FigureResponse toResponse(Figure figure, List<String> characterNames) {
         return new FigureResponse(
                 figure.getId(),
                 figure.getName(),
@@ -143,4 +158,5 @@ public class FigureService {
                 characterNames
         );
     }
+
 }

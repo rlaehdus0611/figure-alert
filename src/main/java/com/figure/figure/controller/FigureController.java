@@ -19,26 +19,25 @@ public class FigureController {
     private final FigureService figureService;
     private final ReleaseService releaseService;
 
-    // 모든 피규어 조회
     @GetMapping("/figures")
-    public List<FigureResponse> getFigures() {
-        return figureService.findAllFigures();
+    public List<FigureResponse> getFigures(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long manufacturerId
+    ) {
+        return figureService.findFigures(keyword, manufacturerId);
     }
 
-    // id로 피규어 조회
     @GetMapping("/figures/{id}")
     public FigureResponse getFigure(@PathVariable Long id) {
         return figureService.findFigure(id);
     }
 
-    // 피규어 등록
     @PostMapping("/figures")
     @ResponseStatus(HttpStatus.CREATED)
     public FigureResponse createFigure(@Valid @RequestBody FigureCreateRequest request) {
         return figureService.createFigure(request);
     }
 
-    // 키워드로 피규어 검색
     @GetMapping("/figures/search")
     public List<FigureResponse> searchFigures(
             @RequestParam String keyword
@@ -46,14 +45,12 @@ public class FigureController {
         return figureService.searchFiguresByName(keyword);
     }
 
-    // 피규어 정보 삭제
     @DeleteMapping("/figures/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFigure(@PathVariable Long id) {
         figureService.deleteFigure(id);
     }
 
-    // 특정 피규어의 출시 이력 조회
     @GetMapping("/figures/{figureId}/releases")
     public List<ReleaseResponse> getFigureReleases(
             @PathVariable Long figureId

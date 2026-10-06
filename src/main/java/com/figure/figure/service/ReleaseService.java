@@ -2,6 +2,7 @@ package com.figure.figure.service;
 
 import com.figure.figure.dto.ReleaseCreateRequest;
 import com.figure.figure.dto.ReleaseResponse;
+import com.figure.figure.dto.ReleaseScheduleUpdateRequest;
 import com.figure.figure.exception.FigureNotFoundException;
 import com.figure.figure.model.Figure;
 import com.figure.figure.model.Release;
@@ -25,7 +26,6 @@ public class ReleaseService {
     private final ReleaseRepository releaseRepository;
     private final FigureRepository figureRepository;
 
-    // 출시 정보 등록
     @Transactional
     public ReleaseResponse createRelease(ReleaseCreateRequest request) {
 
@@ -34,7 +34,9 @@ public class ReleaseService {
 
         Release release = new Release(
                 figure,
-                request.getReleaseDate(),
+                request.getReleaseYear(),
+                request.getReleaseMonth(),
+                request.getReleaseDay(),
                 request.getPrice(),
                 request.getType(),
                 request.getStatus()
@@ -45,7 +47,6 @@ public class ReleaseService {
         return toResponse(savedRelease);
     }
 
-    // 출시 정보 전체 조회
     public List<ReleaseResponse> findAllReleases() {
         return releaseRepository.findAll()
                 .stream()
@@ -53,7 +54,6 @@ public class ReleaseService {
                 .toList();
     }
 
-    // 출시 정보 하나 조회
     public ReleaseResponse findRelease(Long id) {
         Release release = releaseRepository.findById(id)
                 .orElseThrow(ReleaseNotFoundException::new);
@@ -61,7 +61,6 @@ public class ReleaseService {
         return toResponse(release);
     }
 
-    // 특정 피규어 출시 이력 조회
     public List<ReleaseResponse> findReleasesByFigure(Long figureId) {
 
         if (!figureRepository.existsById(figureId)) {
@@ -69,22 +68,44 @@ public class ReleaseService {
         }
 
         return releaseRepository
-                .findByFigure_IdOrderByReleaseDateDesc(figureId)
+                .findByFigure_IdOrderByReleaseYearDescReleaseMonthDescReleaseDayDesc(
+                        figureId
+                )
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    // Release엔티티 -> API 응답용 DTO 변환
+    @Transactional
+    public ReleaseResponse updateSchedule(
+            Long id,
+            ReleaseScheduleUpdateRequest request
+    ) {
+        Release release = releaseRepository.findById(id)
+                .orElseThrow(ReleaseNotFoundException::new);
+
+        release.updateSchedule(
+                request.getReleaseYear(),
+                request.getReleaseMonth(),
+                request.getReleaseDay(),
+                request.getNote()
+        );
+
+        return toResponse(release);
+    }
+
     private ReleaseResponse toResponse(Release release) {
         return new ReleaseResponse(
                 release.getId(),
                 release.getFigure().getId(),
                 release.getFigure().getName(),
-                release.getReleaseDate(),
+                release.getReleaseYear(),
+                release.getReleaseMonth(),
+                release.getReleaseDay(),
                 release.getPrice(),
                 release.getType(),
-                release.getStatus()
+                release.getStatus(),
+                release.getNote()
         );
     }
 

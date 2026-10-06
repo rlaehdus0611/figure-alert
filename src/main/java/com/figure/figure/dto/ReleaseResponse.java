@@ -14,9 +14,12 @@ public class ReleaseResponse {
     private Long id;
     private Long figureId;
     private String figureName;
-    private LocalDate releaseDate;
+    private Integer releaseYear;
+    private Integer releaseMonth;
+    private Integer releaseDay;
     private int price;
     private ReleaseType type;
     private ReleaseStatus status;
+    private String note;
 
 }

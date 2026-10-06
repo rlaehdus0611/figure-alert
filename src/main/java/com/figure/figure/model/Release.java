@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -20,7 +18,9 @@ public class Release {
     @JoinColumn(name = "figure_id", nullable = false)
     private Figure figure;
 
-    private LocalDate releaseDate;
+    private Integer releaseYear;
+    private Integer releaseMonth;
+    private Integer releaseDay;
 
     private int price;
 
@@ -36,15 +36,31 @@ public class Release {
 
     public Release(
             Figure figure,
-            LocalDate releaseDate,
+            Integer releaseYear,
+            Integer releaseMonth,
+            Integer releaseDay,
             int price,
             ReleaseType type,
             ReleaseStatus status
     ) {
         this.figure = figure;
-        this.releaseDate = releaseDate;
+        this.releaseYear = releaseYear;
+        this.releaseMonth = releaseMonth;
+        this.releaseDay = releaseDay;
         this.price = price;
         this.type = type;
         this.status = status;
+    }
+
+    public void updateSchedule(
+            Integer releaseYear,
+            Integer releaseMonth,
+            Integer releaseDay,
+            String note
+    ) {
+        this.releaseYear = releaseYear;
+        this.releaseMonth = releaseMonth;
+        this.releaseDay = releaseDay;
+        this.note = note;
     }
 }

@@ -2,6 +2,7 @@ package com.figure.figure.controller;
 
 import com.figure.figure.dto.ReleaseCreateRequest;
 import com.figure.figure.dto.ReleaseResponse;
+import com.figure.figure.dto.ReleaseScheduleUpdateRequest;
 import com.figure.figure.model.Release;
 import com.figure.figure.service.ReleaseService;
 import jakarta.validation.Valid;
@@ -36,5 +37,13 @@ public class ReleaseController {
             @PathVariable Long id
     ) {
         return releaseService.findRelease(id);
+    }
+
+    @PutMapping("/{id}/schedule")
+    public ReleaseResponse updateSchedule(
+            @PathVariable Long id,
+            @Valid @RequestBody ReleaseScheduleUpdateRequest request
+    ) {
+        return releaseService.updateSchedule(id, request);
     }
 }

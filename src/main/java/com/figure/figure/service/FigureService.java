@@ -2,6 +2,7 @@ package com.figure.figure.service;
 
 import com.figure.figure.dto.FigureCreateRequest;
 import com.figure.figure.dto.FigureResponse;
+import com.figure.figure.dto.FigureUpdateRequest;
 import com.figure.figure.exception.CharacterNotFoundException;
 import com.figure.figure.exception.FigureNotFoundException;
 import com.figure.figure.exception.ManufacturerNotFoundException;
@@ -128,6 +129,40 @@ public class FigureService {
         figureCharacterRepository.saveAll(figureCharacters);
 
         return toResponse(savedFigure);
+    }
+
+    @Transactional
+    public FigureResponse updateFigure(
+            Long id,
+            FigureUpdateRequest request
+    ) {
+        Figure figure = figureRepository.findById(id)
+                .orElseThrow(FigureNotFoundException::new);
+
+        Manufacturer manufacturer = manufacturerRepository
+                .findById(request.getManufacturerId())
+                .orElseThrow(ManufacturerNotFoundException::new);
+
+        List<Character> characters = characterRepository
+                .findAllById(request.getCharacterIds());
+
+        if (characters.size() != request.getCharacterIds().size()) {
+            throw new CharacterNotFoundException();
+        }
+
+        figure.updateDetails(request.getName(), manufacturer);
+
+        figureCharacterRepository.deleteByFigureId(id);
+
+        figureCharacterRepository.flush();
+
+        List<FigureCharacter> relations = characters.stream()
+                .map(character -> new FigureCharacter(figure, character))
+                .toList();
+
+        figureCharacterRepository.saveAll(relations);
+
+        return toResponse(figure);
     }
 
     @Transactional

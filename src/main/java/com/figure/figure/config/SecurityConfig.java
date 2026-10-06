@@ -26,7 +26,6 @@ public class SecurityConfig {
                 new JwtAuthenticationFilter(jwtTokenProvider);
 
         http
-                // CSRF 및 세션 정책
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -34,7 +33,6 @@ public class SecurityConfig {
                         )
                 )
 
-                // 요청별 접근 권한
                 .authorizeHttpRequests(auth -> auth
 
                         // 회원
@@ -85,6 +83,21 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/releases"
+                        ).hasRole("ADMIN")
+
+                        // 캐릭터 구독
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/characters/{characterId}/subscriptions"
+                        ).hasRole("USER")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/characters/{characterId}/subscriptions"
+                        ).hasRole("USER")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/releases/*/schedule"
                         ).hasRole("ADMIN")
 
                         // 그 외 요청

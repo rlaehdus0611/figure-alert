@@ -30,4 +30,12 @@ public class Figure {
         this.name = name;
         this.manufacturer = manufacturer;
     }
+
+    public void updateDetails(
+            String name,
+            Manufacturer manufacturer
+    ) {
+        this.name = name;
+        this.manufacturer = manufacturer;
+    }
 }

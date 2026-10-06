@@ -2,6 +2,7 @@ package com.figure.figure.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,7 +12,7 @@ import com.figure.figure.dto.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    // 제조사를 찾을 수 없을 떄
+
     @ExceptionHandler(ManufacturerNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleManufacturerNotFound(ManufacturerNotFoundException e) {
@@ -21,7 +22,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 캐릭터를 찾을 수 없을때
     @ExceptionHandler(CharacterNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleCharacterNotFound(CharacterNotFoundException e) {
@@ -31,7 +31,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 출시 정보를 찾을 수 없을 때
     @ExceptionHandler(ReleaseNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleReleaseNotFound(ReleaseNotFoundException e) {
@@ -41,7 +40,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 피규어를 찾을 수 없을 때
     @ExceptionHandler(FigureNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFigureNotFound(FigureNotFoundException e) {
@@ -51,7 +49,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 이미 사용 중인 이메일로 회원가입을 시도했을 때
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicateEmail(DuplicateEmailException e) {
@@ -61,7 +58,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 이메일 또는 비밀번호가 일치하지 않을 때
     @ExceptionHandler(InvalidLoginException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidLogin(InvalidLoginException e) {
@@ -71,7 +67,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 제조사 정보가 기존 데이터와 충돌할 때
     @ExceptionHandler(ManufacturerConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleManufacturerConflict(
@@ -80,6 +75,44 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MemberNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleMemberNotFound(MemberNotFoundException e) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(CharacterSubscriptionAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleCharacterSubscriptionAlreadyExists(
+            CharacterSubscriptionAlreadyExistsException e
+    ) {
+        return new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidation(
+            MethodArgumentNotValidException e
+    ) {
+        String message = e.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("입력값을 확인해 주세요.");
+
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                message
         );
     }
 }

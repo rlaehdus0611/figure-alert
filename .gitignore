@@ -42,3 +42,4 @@ out/
 
 # IntelliJ HTTP Client 비공개 환경 설정
 http-client.private.env.json
+/test.http

@@ -26,10 +26,10 @@ public class FigureUpdateRequest {
     @NotEmpty
     private List<@NotNull @Positive Long> characterIds;
 
-    @AssertTrue(message = "캐릭터를 중복 선택할 수 없습니다.")
+    @AssertTrue(message = "중복 선택할 수 없습니다.")
     public boolean isCharacterSelectionValid() {
         if (characterIds == null) {
-            return true; // 누락은 @NotEmpty에서 검사
+            return true;
         }
 
         return characterIds.stream().distinct().count()

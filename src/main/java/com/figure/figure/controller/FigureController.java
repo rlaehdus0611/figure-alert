@@ -2,6 +2,7 @@ package com.figure.figure.controller;
 
 import com.figure.figure.dto.FigureCreateRequest;
 import com.figure.figure.dto.FigureResponse;
+import com.figure.figure.dto.FigureUpdateRequest;
 import com.figure.figure.dto.ReleaseResponse;
 import com.figure.figure.service.FigureService;
 import com.figure.figure.service.ReleaseService;
@@ -56,6 +57,14 @@ public class FigureController {
             @PathVariable Long figureId
     ) {
         return releaseService.findReleasesByFigure(figureId);
+    }
+
+    @PutMapping("/figures/{id}")
+    public FigureResponse updateFigure(
+            @PathVariable Long id,
+            @Valid @RequestBody FigureUpdateRequest request
+    ) {
+        return figureService.updateFigure(id, request);
     }
 
 }

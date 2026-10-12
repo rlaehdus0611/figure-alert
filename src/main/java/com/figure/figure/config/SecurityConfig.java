@@ -35,13 +35,11 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // 회원
                         .requestMatchers(
                                 "/members/signup",
                                 "/members/login"
                         ).permitAll()
 
-                        // 피규어
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/figures",
@@ -56,7 +54,6 @@ public class SecurityConfig {
                                 "/figures/{id}"
                         ).hasRole("ADMIN")
 
-                        // 제조사
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/manufacturers"
@@ -74,7 +71,6 @@ public class SecurityConfig {
                                 "/manufacturers/{id}"
                         ).hasRole("ADMIN")
 
-                        // 발매 정보
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/releases",
@@ -85,7 +81,6 @@ public class SecurityConfig {
                                 "/releases"
                         ).hasRole("ADMIN")
 
-                        // 캐릭터 구독
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/characters/{characterId}/subscriptions"
@@ -100,11 +95,14 @@ public class SecurityConfig {
                                 "/releases/*/schedule"
                         ).hasRole("ADMIN")
 
-                        // 그 외 요청
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/figures/*"
+                        ).hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
 
-                // 필터 설정
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

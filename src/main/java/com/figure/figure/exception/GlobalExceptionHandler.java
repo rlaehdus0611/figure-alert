@@ -1,5 +1,6 @@
 package com.figure.figure.exception;
 
+import com.figure.figure.dto.CharacterSubscriptionRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -110,8 +111,15 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getDefaultMessage())
                 .orElse("입력값을 확인해 주세요.");
 
+        String code =
+                e.getBindingResult().getTarget()
+                        instanceof CharacterSubscriptionRequest
+                        ? "INVALID_SUBSCRIPTION_SETTINGS"
+                        : "REQUEST_FAILED";
+
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
+                code,
                 message
         );
     }

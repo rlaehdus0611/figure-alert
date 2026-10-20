@@ -1,4 +1,3 @@
-
 package com.figure.figure.model;
 
 import jakarta.persistence.*;
@@ -35,9 +34,51 @@ public class CharacterSubscription {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public CharacterSubscription(Member member, Character character) {
+    @Column(nullable = false)
+    private boolean announcementEnabled;
+
+    @Column(nullable = false)
+    private boolean preorderEnabled;
+
+    @Column(nullable = false)
+    private boolean deadlineEnabled;
+
+    @Column(nullable = false)
+    private boolean rereleaseEnabled;
+
+    @Column(nullable = false)
+    private boolean prizeEnabled;
+
+    public CharacterSubscription(
+            Member member,
+            Character character,
+            boolean announcementEnabled,
+            boolean preorderEnabled,
+            boolean deadlineEnabled,
+            boolean rereleaseEnabled,
+            boolean prizeEnabled
+    ) {
         this.member = member;
         this.character = character;
+        this.announcementEnabled = announcementEnabled;
+        this.preorderEnabled = preorderEnabled;
+        this.deadlineEnabled = deadlineEnabled;
+        this.rereleaseEnabled = rereleaseEnabled;
+        this.prizeEnabled = prizeEnabled;
+    }
+
+    public void changeSettings(
+            boolean announcementEnabled,
+            boolean preorderEnabled,
+            boolean deadlineEnabled,
+            boolean rereleaseEnabled,
+            boolean prizeEnabled
+    ) {
+        this.announcementEnabled = announcementEnabled;
+        this.preorderEnabled = preorderEnabled;
+        this.deadlineEnabled = deadlineEnabled;
+        this.rereleaseEnabled = rereleaseEnabled;
+        this.prizeEnabled = prizeEnabled;
     }
 
     @PrePersist

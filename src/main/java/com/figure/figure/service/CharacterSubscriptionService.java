@@ -8,10 +8,10 @@ import com.figure.figure.model.Member;
 import com.figure.figure.repository.CharacterRepository;
 import com.figure.figure.repository.CharacterSubscriptionRepository;
 import com.figure.figure.repository.MemberRepository;
+import com.figure.figure.dto.CharacterSubscriptionRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.figure.figure.exception.CharacterSubscriptionAlreadyExistsException;
 
 import java.util.Optional;
 
@@ -25,7 +25,11 @@ public class CharacterSubscriptionService {
     private final CharacterRepository characterRepository;
 
     @Transactional
-    public SubscribeResult subscribe(Long memberId, Long characterId) {
+    public SubscribeResult subscribe(
+            Long memberId,
+            Long characterId,
+            CharacterSubscriptionRequest request
+    ) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
@@ -40,11 +44,29 @@ public class CharacterSubscriptionService {
                 );
 
         if (existingSubscription.isPresent()) {
-            throw new CharacterSubscriptionAlreadyExistsException();
+            CharacterSubscription subscription = existingSubscription.get();
+
+            subscription.changeSettings(
+                    request.getAnnouncementEnabled(),
+                    request.getPreorderEnabled(),
+                    request.getDeadlineEnabled(),
+                    request.getRereleaseEnabled(),
+                    request.getPrizeEnabled()
+            );
+
+            return new SubscribeResult(subscription, false);
         }
 
         CharacterSubscription subscription =
-                new CharacterSubscription(member, character);
+                new CharacterSubscription(
+                        member,
+                        character,
+                        request.getAnnouncementEnabled(),
+                        request.getPreorderEnabled(),
+                        request.getDeadlineEnabled(),
+                        request.getRereleaseEnabled(),
+                        request.getPrizeEnabled()
+                );
 
         CharacterSubscription savedSubscription =
                 subscriptionRepository.save(subscription);

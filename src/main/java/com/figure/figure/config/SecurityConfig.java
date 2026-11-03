@@ -35,70 +35,82 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(
-                                "/members/signup",
-                                "/members/login"
-                        ).permitAll()
+                                // 회원가입, 로그인
+                                .requestMatchers(
+                                        "/members/signup",
+                                        "/members/login"
+                                ).permitAll()
 
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/figures",
-                                "/figures/**"
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/figures"
-                        ).hasRole("ADMIN")
-                        .requestMatchers(
-                                HttpMethod.DELETE,
-                                "/figures/{id}"
-                        ).hasRole("ADMIN")
+                                // 캐릭터
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/characters",
+                                        "/characters/search",
+                                        "/characters/{id}",
+                                        "/characters/{id}/figures"
+                                ).permitAll()
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/characters"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/manufacturers"
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/manufacturers"
-                        ).hasRole("ADMIN")
-                        .requestMatchers(
-                                HttpMethod.PATCH,
-                                "/manufacturers/{id}"
-                        ).hasRole("ADMIN")
-                        .requestMatchers(
-                                HttpMethod.DELETE,
-                                "/manufacturers/{id}"
-                        ).hasRole("ADMIN")
+                                // 피규어
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/figures",
+                                        "/figures/**"
+                                ).permitAll()
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/figures"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/figures/*"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/figures/{id}"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/releases",
-                                "/releases/**"
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/releases"
-                        ).hasRole("ADMIN")
+                                // 제조사
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/manufacturers"
+                                ).permitAll()
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/manufacturers"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.PATCH,
+                                        "/manufacturers/{id}"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.DELETE,
+                                        "/manufacturers/{id}"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/characters/{characterId}/subscriptions"
-                        ).hasRole("USER")
-                        .requestMatchers(
-                                HttpMethod.DELETE,
-                                "/characters/{characterId}/subscriptions"
-                        ).hasRole("USER")
+                                // 발매 정보
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/releases",
+                                        "/releases/**"
+                                ).permitAll()
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/releases"
+                                ).hasRole("ADMIN")
+                                .requestMatchers(
+                                        HttpMethod.PUT,
+                                        "/releases/*/schedule"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(
+                                // 개인 구독은 USER 계정만 허용
+                                .requestMatchers(
                                 HttpMethod.PUT,
-                                "/releases/*/schedule"
-                        ).hasRole("ADMIN")
-
-                        .requestMatchers(
-                                HttpMethod.PUT,
-                                "/figures/*"
-                        ).hasRole("ADMIN")
+                                "/characters/{characterId}/subscription"
+                                ).hasRole("USER")
 
                         .anyRequest().authenticated()
                 )

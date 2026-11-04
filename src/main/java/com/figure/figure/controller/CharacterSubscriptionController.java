@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import jakarta.validation.constraints.Positive;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class CharacterSubscriptionController {
 
     @PutMapping
     public ResponseEntity<CharacterSubscriptionResponse> subscribe(
-            @PathVariable("characterId") Long characterId,
+            @PathVariable("characterId") @Positive Long characterId,
             @Valid @RequestBody CharacterSubscriptionRequest request,
             Authentication authentication
     ) {
@@ -45,5 +46,22 @@ public class CharacterSubscriptionController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public CharacterSubscriptionResponse get(
+            @PathVariable("characterId") @Positive Long characterId,
+            Authentication authentication
+    ) {
+        return subscriptionService.get((Long) authentication.getPrincipal(), characterId);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> cancel(
+            @PathVariable("characterId") @Positive Long characterId,
+            Authentication authentication
+    ) {
+        subscriptionService.cancel((Long) authentication.getPrincipal(), characterId);
+        return ResponseEntity.noContent().build();
     }
 }

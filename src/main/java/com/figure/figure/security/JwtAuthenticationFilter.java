@@ -36,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authorizationHeader.substring(7);
 
+        try {
         if (jwtTokenProvider.validateToken(token)) {
             Long memberId = jwtTokenProvider.getMemberId(token);
             String role = jwtTokenProvider.getRole(token);
@@ -51,6 +52,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
+        }
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            // Validation and claim reads may straddle the token expiration instant.
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

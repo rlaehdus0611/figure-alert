@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.List;
+import com.figure.figure.dto.CharacterSubscriptionResponse;
+import com.figure.figure.exception.CharacterSubscriptionNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,30 @@ public class CharacterSubscriptionService {
     private final CharacterSubscriptionRepository subscriptionRepository;
     private final MemberRepository memberRepository;
     private final CharacterRepository characterRepository;
+
+    public CharacterSubscriptionResponse get(Long memberId, Long characterId) {
+        requireCharacter(characterId);
+        return subscriptionRepository.findByMember_IdAndCharacter_Id(memberId, characterId)
+                .map(CharacterSubscriptionResponse::from)
+                .orElseThrow(CharacterSubscriptionNotFoundException::new);
+    }
+
+    public List<CharacterSubscriptionResponse> list(Long memberId) {
+        return subscriptionRepository.findAllForMember(memberId).stream()
+                .map(CharacterSubscriptionResponse::from).toList();
+    }
+
+    @Transactional
+    public void cancel(Long memberId, Long characterId) {
+        requireCharacter(characterId);
+        subscriptionRepository.deleteForMember(memberId, characterId);
+    }
+
+    private void requireCharacter(Long characterId) {
+        if (!characterRepository.existsById(characterId)) {
+            throw new CharacterNotFoundException();
+        }
+    }
 
     @Transactional
     public SubscribeResult subscribe(

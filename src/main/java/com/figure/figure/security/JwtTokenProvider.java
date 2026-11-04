@@ -46,17 +46,20 @@ public class JwtTokenProvider {
     // JWT가 유효한 토큰인지 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
+            var claims = Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
-                    .parseSignedClaims(token);
+                    .parseSignedClaims(token).getPayload();
+
+            if (claims.getExpiration() == null || Long.parseLong(claims.getSubject()) <= 0) return false;
+            com.figure.figure.model.MemberRole.valueOf(claims.get("role", String.class));
 
             return true;
 
         } catch (ExpiredJwtException e) {
             return false;
 
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (JwtException | IllegalArgumentException | NullPointerException e) {
             return false;
         }
     }

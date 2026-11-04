@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface FigureRepository extends JpaRepository<Figure, Long> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select f from Figure f where f.id = :id")
+    java.util.Optional<Figure> findLocked(@Param("id") Long id);
+
     List<Figure> findByNameContaining(String keyword);
 
     boolean existsByManufacturer_Id(Long manufacturerId);

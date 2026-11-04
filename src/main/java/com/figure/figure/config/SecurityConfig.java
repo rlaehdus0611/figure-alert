@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
+import jakarta.servlet.DispatcherType;
 
 @Configuration
 @RequiredArgsConstructor
@@ -33,7 +34,24 @@ public class SecurityConfig {
                         )
                 )
 
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint((request, response, error) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"status\":401,\"code\":\"UNAUTHORIZED\",\"message\":\"로그인이 필요합니다.\"}");
+                        })
+                        .accessDeniedHandler((request, response, error) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"status\":403,\"code\":\"FORBIDDEN\",\"message\":\"접근 권한이 없습니다.\"}");
+                        }))
+
                 .authorizeHttpRequests(auth -> auth
+
+                                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/notifications", "/notifications/**").hasRole("USER")
 
                                 // 회원가입, 로그인
                                 .requestMatchers(
@@ -111,6 +129,12 @@ public class SecurityConfig {
                                 HttpMethod.PUT,
                                 "/characters/{characterId}/subscription"
                                 ).hasRole("USER")
+
+                                .requestMatchers(HttpMethod.GET,
+                                        "/characters/{characterId}/subscription",
+                                        "/members/me/subscriptions").hasRole("USER")
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/characters/{characterId}/subscription").hasRole("USER")
 
                         .anyRequest().authenticated()
                 )
